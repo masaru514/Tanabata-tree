@@ -1,2 +1,3 @@
-# Tanabata-tree
-みんなで願い事を書くサービス
+# Tanabata-Tree
+
+### たなばたで願い事をしよう
