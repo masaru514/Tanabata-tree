@@ -27,9 +27,16 @@ yarn-error.log*
 
 # dotenv local files
 .env*.local
+.env
 
 # local folder
 local
 
 # vercel
 .vercel
+
+# firebase
+.firebaserc
+firebase.json
+firestore.indexes.json
+firestore.rules
