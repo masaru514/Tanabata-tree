@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC, useRef } from 'react';
 
 import {
   Box,
@@ -9,6 +9,7 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
+import axios from 'axios';
 
 import { Meta } from '../layout/Meta';
 import { Main } from '../templates/Main';
@@ -49,18 +50,42 @@ const useStyles = makeStyles({
   },
 });
 
-const handleSubmit = (e: any) => {
-  e.preventDefault();
-  console.log(e);
+type DBCollectionTypes = {
+  createdAt: Date;
+  name?: string;
+  detail?: string;
 };
 
-const Index = ({ lists }: any) => {
+type PropsTypes = {
+  lists: DBCollectionTypes[];
+};
+
+const Index: FC<PropsTypes> = ({ lists }) => {
   const classes = useStyles();
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  // const [form, setForm] = React.useState({
-  //   name: '',
-  //   detail: '',
-  // });
+  const name = useRef<HTMLInputElement>(null);
+  const detail = useRef<HTMLInputElement>(null);
+
+  const [form, setForm] = React.useState<DBCollectionTypes>({
+    createdAt: new Date(),
+    name: '',
+    detail: '',
+  });
+
+  // const handleChange = (e, changedName) => {
+  //   console.log(name.current?.value, changedName);
+  // };
+
+  const handleSubmit = () => async (e: any) => {
+    e.preventDefault();
+    setForm({
+      createdAt: new Date(),
+      name: name.current?.value,
+      detail: detail.current?.value,
+    });
+    await axios.post('/api/', form);
+    console.log(form, `name: ${name.current?.value}`);
+  };
+
   return (
     <Main
       meta={
@@ -71,14 +96,21 @@ const Index = ({ lists }: any) => {
       }
     >
       <Box>
-        <form onSubmit={handleSubmit}>
-          <TextField required id="name" defaultValue="Hello" label="名前" />
+        <form onSubmit={handleSubmit()}>
+          <TextField
+            required
+            id="name"
+            defaultValue="Hello"
+            label="名前"
+            inputRef={name}
+            // onChange={(e) => handleChange(e, 'name')}
+          />
           <TextField
             required
             id="text"
             defaultValue="name"
             label="ねがいごと"
-            onChange={() => console.log('aa')}
+            inputRef={detail}
           />
           <Button type="submit" color="primary">
             投稿する
@@ -86,7 +118,7 @@ const Index = ({ lists }: any) => {
         </form>
       </Box>
       <Box className={classes.root}>
-        {lists.map((item: { detail: string; name: string }) => {
+        {lists.map((item) => {
           return (
             <Card key={item.detail} className={classes.cardRoot}>
               <CardContent className={classes.content}>
@@ -113,10 +145,16 @@ const Index = ({ lists }: any) => {
   );
 };
 
+// firestore SSG
 export async function getStaticProps() {
   const list = await db.collection('stripList').get();
   const lists = list.docs.map((doc) => {
-    return { id: doc.id, detail: doc.data().detail, name: doc.data().name };
+    const stripData = doc.data();
+    return {
+      createdAt: stripData.detail,
+      detail: stripData.detail,
+      name: stripData.name,
+    };
   });
   return {
     props: {
