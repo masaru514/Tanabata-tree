@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import axios from 'axios';
+import { format } from 'date-fns';
 
 import { Meta } from '../layout/Meta';
 import { Main } from '../templates/Main';
@@ -51,7 +52,7 @@ const useStyles = makeStyles({
 });
 
 type DBCollectionTypes = {
-  createdAt: Date;
+  createdAt: number;
   name?: string;
   detail?: string;
 };
@@ -64,26 +65,28 @@ const Index: FC<PropsTypes> = ({ lists }) => {
   const classes = useStyles();
   const name = useRef<HTMLInputElement>(null);
   const detail = useRef<HTMLInputElement>(null);
+  const formatLists = lists.sort((a, b) => {
+    return b.createdAt - a.createdAt;
+  });
 
   const [form, setForm] = React.useState<DBCollectionTypes>({
-    createdAt: new Date(),
+    createdAt: 0,
     name: '',
     detail: '',
   });
 
-  // const handleChange = (e, changedName) => {
-  //   console.log(name.current?.value, changedName);
-  // };
-
-  const handleSubmit = () => async (e: any) => {
-    e.preventDefault();
+  const handleChange = () => () => {
     setForm({
-      createdAt: new Date(),
+      createdAt: Number(format(new Date(), 'yyyyMMddHHmmss')),
       name: name.current?.value,
       detail: detail.current?.value,
     });
+  };
+
+  const handleSubmit = () => async (e: any) => {
+    e.preventDefault();
+
     await axios.post('/api/', form);
-    console.log(form, `name: ${name.current?.value}`);
   };
 
   return (
@@ -100,17 +103,16 @@ const Index: FC<PropsTypes> = ({ lists }) => {
           <TextField
             required
             id="name"
-            defaultValue="Hello"
             label="名前"
             inputRef={name}
-            // onChange={(e) => handleChange(e, 'name')}
+            onChange={handleChange()}
           />
           <TextField
             required
             id="text"
-            defaultValue="name"
             label="ねがいごと"
             inputRef={detail}
+            onChange={handleChange()}
           />
           <Button type="submit" color="primary">
             投稿する
@@ -118,9 +120,9 @@ const Index: FC<PropsTypes> = ({ lists }) => {
         </form>
       </Box>
       <Box className={classes.root}>
-        {lists.map((item) => {
+        {formatLists.map((item) => {
           return (
-            <Card key={item.detail} className={classes.cardRoot}>
+            <Card key={item.createdAt} className={classes.cardRoot}>
               <CardContent className={classes.content}>
                 <Typography
                   className={classes.text}
@@ -133,10 +135,6 @@ const Index: FC<PropsTypes> = ({ lists }) => {
                   {item.name}
                 </Typography>
               </CardContent>
-
-              {/* <CardActions>
-                <Button size="small">Learn More</Button>
-              </CardActions> */}
             </Card>
           );
         })}
@@ -149,12 +147,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
 export async function getStaticProps() {
   const list = await db.collection('stripList').get();
   const lists = list.docs.map((doc) => {
-    const stripData = doc.data();
-    return {
-      createdAt: stripData.detail,
-      detail: stripData.detail,
-      name: stripData.name,
-    };
+    return doc.data();
   });
   return {
     props: {
