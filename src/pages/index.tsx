@@ -134,8 +134,8 @@ const Index: FC<PropsTypes> = ({ lists }) => {
     <Main
       meta={
         <Meta
-          title="Next.js Boilerplate Presentation"
-          description="Next js Boilerplate is the perfect starter code for your project. Build your React application with the Next.js framework."
+          title="七夕〜願い事を叶えよう〜 | masaru514"
+          description="七夕で願い事を叶えよう。コロナの影響が怖いのでネット上で投稿出来るサービスを作りました。"
         />
       }
     >
