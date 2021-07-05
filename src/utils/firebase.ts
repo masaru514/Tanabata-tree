@@ -12,5 +12,5 @@ if (firebase.apps.length === 0) {
   };
   firebase.initializeApp(firebaseConfig);
 }
-
+export const auth = firebase.auth();
 export const db = firebase.firestore();

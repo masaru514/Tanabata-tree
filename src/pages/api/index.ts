@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { db } from '../../utils/db';
+import { db } from '../../utils/firebase';
 
 const index = async (req: NextApiRequest, res: NextApiResponse) => {
   const form = req.body;

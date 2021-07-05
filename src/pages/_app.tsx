@@ -12,6 +12,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       jssStyles.parentElement?.removeChild(jssStyles);
     }
   }, []);
+
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <Component {...pageProps} />;
 };

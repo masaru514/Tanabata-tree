@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 
 import { Meta } from '../layout/Meta';
 import { Main } from '../templates/Main';
-import { db } from '../utils/db';
+import { db, auth } from '../utils/firebase';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -130,7 +130,6 @@ const Index: FC<PropsTypes> = ({ lists }) => {
       detail.current.value = '';
     }
   };
-
   return (
     <Main
       meta={
@@ -207,6 +206,11 @@ export async function getStaticProps() {
     .get();
   const lists = list.docs.map((doc) => {
     return doc.data();
+  });
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      auth.signInAnonymously();
+    }
   });
   return {
     props: {
