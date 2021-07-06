@@ -125,7 +125,6 @@ const Index: FC<PropsTypes> = ({ lists }) => {
   };
 
   const handleSubmit = () => async (e: React.FormEvent) => {
-    e.preventDefault();
     setStripList([form, ...stripList]);
 
     await axios.post('/api/', form);
@@ -133,6 +132,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
       name.current.value = '';
       detail.current.value = '';
     }
+    e.preventDefault();
   };
   return (
     <Main
