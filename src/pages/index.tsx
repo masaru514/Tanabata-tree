@@ -125,14 +125,13 @@ const Index: FC<PropsTypes> = ({ lists }) => {
   };
 
   const handleSubmit = () => async (e: React.FormEvent) => {
+    e.preventDefault();
     setStripList([form, ...stripList]);
-
     await axios.post('/api/', form);
     if (name.current && detail.current) {
       name.current.value = '';
       detail.current.value = '';
     }
-    e.preventDefault();
   };
   return (
     <Main
@@ -217,7 +216,6 @@ export async function getStaticProps() {
     props: {
       lists,
     },
-    revalidate: 3,
   };
 }
 
