@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 
 import { Meta } from '../layout/Meta';
 import { Main } from '../templates/Main';
-import { db, auth } from '../utils/firebase';
+import { db } from '../utils/firebase';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -100,6 +100,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
     name: '',
     detail: '',
   });
+  const [stripList, setStripList] = React.useState<DBCollectionTypes[]>(lists);
 
   const handleChange = () => () => {
     setForm({
@@ -123,7 +124,10 @@ const Index: FC<PropsTypes> = ({ lists }) => {
     }
   };
 
-  const handleSubmit = () => async () => {
+  const handleSubmit = () => async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStripList([form, ...stripList]);
+
     await axios.post('/api/', form);
     if (name.current && detail.current) {
       name.current.value = '';
@@ -181,7 +185,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
         </form>
       </Box>
       <Box className={classes.root}>
-        {lists.map((item) => {
+        {stripList.map((item) => {
           return (
             <Card key={item.createdAt} className={classes.cardRoot}>
               <CardContent className={classes.content}>
@@ -199,6 +203,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
 };
 
 // firestore SSG
+// ここが問題
 export async function getStaticProps() {
   const list = await db
     .collection('stripList')
@@ -207,16 +212,12 @@ export async function getStaticProps() {
   const lists = list.docs.map((doc) => {
     return doc.data();
   });
-  auth.onAuthStateChanged((user) => {
-    if (!user) {
-      auth.signInAnonymously();
-    }
-  });
+
   return {
     props: {
       lists,
     },
-    revalidate: 50,
+    revalidate: 3,
   };
 }
 
