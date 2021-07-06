@@ -10,6 +10,7 @@ import {
   Theme,
   createStyles,
   makeStyles,
+  Snackbar,
 } from '@material-ui/core';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -101,6 +102,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
     detail: '',
   });
   const [stripList, setStripList] = React.useState<DBCollectionTypes[]>(lists);
+  const [save, setSave] = React.useState(false);
 
   const handleChange = () => () => {
     setForm({
@@ -124,14 +126,19 @@ const Index: FC<PropsTypes> = ({ lists }) => {
     }
   };
 
+  const handleClose = () => {
+    setTimeout(() => setSave(false), 3000);
+  };
+
   const handleSubmit = () => async (e: React.FormEvent) => {
     e.preventDefault();
     setStripList([form, ...stripList]);
+    await axios.post('/api/', form);
+    setSave(true);
     if (name.current && detail.current) {
       name.current.value = '';
       detail.current.value = '';
     }
-    await axios.post('/api/', form);
   };
   return (
     <Main
@@ -143,6 +150,12 @@ const Index: FC<PropsTypes> = ({ lists }) => {
       }
     >
       <Box>
+        <Snackbar
+          open={save}
+          message="投稿ありがとうございます！！ 投稿が完了しました！"
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        />
         <form className={classes.form} onSubmit={handleSubmit()}>
           <Box>
             <TextField
@@ -203,7 +216,7 @@ const Index: FC<PropsTypes> = ({ lists }) => {
 
 // firestore SSG
 // ここが問題
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const list = await db
     .collection('stripList')
     .orderBy('createdAt', 'desc')
